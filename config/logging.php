@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+/*
+ | Logging settings. Edit directly — no .env file.
+ */
+
 return [
     // Minimum level to record: debug | info | warning | error.
-    'level' => env('LOG_LEVEL', 'debug'),
+    'level' => 'debug',
 
-    // Log file path. Defaults to storage/logs/app.log via Application when unset.
-    'path' => env('LOG_PATH', null),
+    // Log file path. null = storage/logs/app.log.
+    'path' => null,
 ];

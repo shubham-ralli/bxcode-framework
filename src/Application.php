@@ -48,25 +48,22 @@ final class Application
     /** @var array<string,mixed> Merged config, keyed by file then dot-path. */
     private array $config = [];
 
-    private bool $debug = false;
-
     private function __construct(private readonly string $basePath)
     {
         $this->router = new Router();
     }
 
     /**
-     * Boot the application from a project root. Loads .env, then every PHP file
-     * in config/ (each returns an array, keyed under its filename).
+     * Boot the application from a project root. Loads every PHP file in config/
+     * (each returns an array, keyed under its filename). There is no .env file —
+     * all settings live in config/*.php, which you edit directly.
      */
     public static function boot(string $basePath): self
     {
         $app = new self(rtrim($basePath, '/'));
         self::$instance = $app;
 
-        $app->loadEnv($app->basePath . '/.env');
         $app->loadConfig($app->basePath . '/config');
-        $app->debug = (bool) $app->config('app.debug', false);
 
         return $app;
     }
@@ -104,7 +101,7 @@ final class Application
             $config = $this->config("database.connections.{$default}", []);
             $this->connection = new Connection($config);
 
-            if ((bool) $this->config('database.log_queries', $this->debug)) {
+            if ((bool) ($this->config('database.log_queries') ?? $this->isDebug())) {
                 $this->connection->enableQueryLog();
             }
         }
@@ -206,9 +203,10 @@ final class Application
         return $this->basePath . ($append !== '' ? '/' . ltrim($append, '/') : '');
     }
 
+    /** Debug mode, read live from config('app.debug'). */
     public function isDebug(): bool
     {
-        return $this->debug;
+        return (bool) $this->config('app.debug', false);
     }
 
     /** Dispatch a request to a Response. Pure and testable — no output here. */
@@ -245,7 +243,34 @@ final class Application
         return $value;
     }
 
-    /** Read an environment value with a typed-ish default fallback. */
+    /**
+     * Override a config value at runtime by "file.key.subkey" dot path. Useful
+     * for tests and for conditionally adjusting settings during boot.
+     */
+    public function setConfig(string $key, mixed $value): void
+    {
+        $segments = explode('.', $key);
+        $ref      = &$this->config;
+
+        foreach ($segments as $i => $segment) {
+            if ($i === array_key_last($segments)) {
+                $ref[$segment] = $value;
+
+                return;
+            }
+            if (!isset($ref[$segment]) || !is_array($ref[$segment])) {
+                $ref[$segment] = [];
+            }
+            $ref = &$ref[$segment];
+        }
+    }
+
+    /**
+     * Read a real OS/server environment variable (e.g. one set in a hosting
+     * control panel), with a typed-ish default. OPTIONAL — BXCode has no .env
+     * file; configure the framework in config/*.php. Use this only if you want a
+     * server environment variable to drive a config value.
+     */
     public static function env(string $key, mixed $default = null): mixed
     {
         $value = $_ENV[$key] ?? getenv($key);
@@ -261,35 +286,6 @@ final class Application
             'empty', '(empty)' => '',
             default            => $value,
         };
-    }
-
-    /** Minimal .env loader. No external dependency; KEY=value, # comments, quotes. */
-    private function loadEnv(string $path): void
-    {
-        if (!is_file($path)) {
-            return;
-        }
-
-        foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
-                continue;
-            }
-
-            [$key, $value] = explode('=', $line, 2);
-            $key   = trim($key);
-            $value = trim($value);
-
-            // Strip one layer of matching quotes.
-            if (strlen($value) >= 2 && ($value[0] === '"' || $value[0] === "'") && $value[-1] === $value[0]) {
-                $value = substr($value, 1, -1);
-            }
-
-            if ($key !== '' && getenv($key) === false) {
-                $_ENV[$key] = $value;
-                putenv($key . '=' . $value);
-            }
-        }
     }
 
     private function loadConfig(string $dir): void
@@ -335,7 +331,7 @@ final class Application
         // Genuine failures: log them, then respond.
         $this->logException($e);
 
-        if (!$this->debug) {
+        if (!$this->isDebug()) {
             return $wantsJson
                 ? Response::json(['message' => 'Server Error'], 500)
                 : Response::html(

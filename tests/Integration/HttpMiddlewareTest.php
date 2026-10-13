@@ -26,8 +26,6 @@ final class HttpMiddlewareTest extends TestCase
     protected function tearDown(): void
     {
         Application::setInstance(null);
-        putenv('RATELIMIT_MAX');
-        unset($_ENV['RATELIMIT_MAX']);
     }
 
     private function boot(): Application
@@ -65,10 +63,8 @@ final class HttpMiddlewareTest extends TestCase
 
     public function test_rate_limit_blocks_after_max(): void
     {
-        putenv('RATELIMIT_MAX=2');
-        $_ENV['RATELIMIT_MAX'] = '2';
-
         $app = $this->boot();
+        $app->setConfig('ratelimit.max_attempts', 2);
         $app->router()->get('/limited', fn () => 'ok', null, [RateLimit::class]);
 
         self::assertSame(200, $app->handle(new Request('GET', '/limited'))->status());

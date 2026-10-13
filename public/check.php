@@ -10,22 +10,14 @@ declare(strict_types=1);
 
 use BXCode\Support\EnvironmentCheck;
 
-$root     = dirname(__DIR__);
-$autoload = $root . '/vendor/autoload.php';
+$root = dirname(__DIR__);
 
-if (!is_file($autoload)) {
-    $message = 'Dependencies are missing: vendor/autoload.php not found. '
-        . 'Upload the production package (which bundles vendor/) or run composer install.';
-    if (PHP_SAPI === 'cli') {
-        fwrite(STDERR, $message . PHP_EOL);
-    } else {
-        http_response_code(500);
-        echo '<h1>BXCode setup</h1><p>' . htmlspecialchars($message, ENT_QUOTES) . '</p>';
-    }
-    exit(1);
+// Composer autoloader if present, otherwise the built-in one (no Composer needed).
+if (is_file($root . '/vendor/autoload.php')) {
+    require $root . '/vendor/autoload.php';
+} else {
+    require $root . '/bootstrap/autoload.php';
 }
-
-require $autoload;
 
 $result = (new EnvironmentCheck())->run($root . '/storage');
 

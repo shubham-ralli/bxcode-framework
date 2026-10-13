@@ -6,6 +6,17 @@ All notable changes to BXCode are documented here.
 
 ### Phase 6 — Stabilization
 
+- **Composer-free, .env-free operation (CodeIgniter-3 style)**: added
+  `bootstrap/autoload.php`, a native PSR-4 autoloader. `public/index.php`,
+  `bxcode`, and `public/check.php` use Composer's autoloader when present and
+  fall back to it otherwise, so the app runs with no `vendor/`. `bootstrap/` is
+  bundled in the production package.
+- **Removed the `.env` file entirely.** Dropped the `.env` loader and
+  `.env.example`; all settings are now literal values in `config/*.php`, edited
+  directly. Added `Application::setConfig($key, $value)` for runtime overrides;
+  `isDebug()` reads `config('app.debug')` live. `env()` remains only as an
+  optional reader of a real server environment variable (reads no file).
+
 - **Closed spec middleware gaps**: `Middleware\SecurityHeaders`,
   `Middleware\Cors` (config-driven, preflight), `Middleware\RateLimit` (429 +
   Retry-After, X-RateLimit headers) backed by `Security\RateLimiter`, and

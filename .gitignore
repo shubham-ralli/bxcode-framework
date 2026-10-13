@@ -1,7 +1,7 @@
 /vendor/
 /dist/
-/.env
 /storage/logs/*.log
+/storage/database.sqlite
 /storage/cache/*
 !/storage/cache/.gitkeep
 /storage/app/*

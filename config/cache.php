@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+/*
+ | Cache settings. Edit directly — no .env file.
+ */
+
 return [
-    // Cache directory. Defaults to storage/cache via Application when unset.
-    'path' => env('CACHE_PATH', null),
+    // Cache directory. null = storage/cache.
+    'path' => null,
 
     // Key prefix for namespacing (useful when apps share a directory).
-    'prefix' => env('CACHE_PREFIX', ''),
+    'prefix' => '',
 ];

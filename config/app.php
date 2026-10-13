@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
+/*
+ | Application settings. Edit the values directly — there is no .env file.
+ | Set 'debug' to false in production.
+ */
+
 return [
-    'name'  => env('APP_NAME', 'BXCode'),
-    'env'   => env('APP_ENV', 'production'),
-    'debug' => env('APP_DEBUG', false),
-    'url'   => env('APP_URL', 'http://localhost'),
+    'name'  => 'BXCode',
+    'env'   => 'production',          // 'production' | 'local'
+    'debug' => false,                 // true only while developing
+    'url'   => 'http://localhost',
 ];

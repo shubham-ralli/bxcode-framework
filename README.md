@@ -23,9 +23,17 @@ required — just ordinary PHP.
 ## Install
 
 ```bash
-composer install
-cp .env.example .env
+composer install     # optional — only for the dev test suite / optimised autoloader
 ```
+
+All settings live in `config/*.php` — **there is no `.env` file**. Edit those
+files directly (database credentials in `config/database.php`, debug in
+`config/app.php`, and so on).
+
+**No Composer?** You don't need it. BXCode has no production dependencies — if
+`vendor/` is absent it uses the built-in autoloader (`bootstrap/autoload.php`).
+Upload the project, point the web root at `public/`, edit `config/*.php`, done —
+CodeIgniter-3 style. See [docs/shared-hosting.md](docs/shared-hosting.md).
 
 ## Run it
 
@@ -335,18 +343,23 @@ if ($errors === []) {
 }
 ```
 
-## Config and environment
+## Configuration
+
+All configuration lives in plain-PHP files under `config/`, each returning an
+array. **There is no `.env` file** — edit the config files directly. Read values
+anywhere with `config()`:
 
 ```php
-config('app.name');          // reads config/app.php
-config('app.debug', false);  // second arg is the default
-
-env('APP_ENV', 'production');
-env('APP_DEBUG', false);
+config('app.name');            // reads config/app.php
+config('app.debug', false);    // second arg is the default
+config('database.connections.mysql.host');
 ```
 
-Config files are plain PHP in `config/`, each returning an array. `.env` is a
-simple `KEY=value` file (no external dependency); `true`/`false`/`null` are cast.
+Override a value at runtime (handy in tests) with `app()->setConfig('app.debug', true)`.
+
+Optionally, `env('APP_ENV', 'production')` reads a real **server** environment
+variable (e.g. one set in a hosting control panel) — it does not read any file
+and is never required.
 
 ## Project layout
 

@@ -20,8 +20,6 @@ final class ApplicationTest extends TestCase
     protected function tearDown(): void
     {
         Application::setInstance(null);
-        unset($_ENV['APP_DEBUG']);
-        putenv('APP_DEBUG');
     }
 
     public function test_boot_loads_config_with_defaults(): void
@@ -79,10 +77,8 @@ final class ApplicationTest extends TestCase
 
     public function test_exception_shows_detail_when_debug_on(): void
     {
-        $_ENV['APP_DEBUG'] = 'true';
-        putenv('APP_DEBUG=true');
-
         $app = Application::boot($this->root);
+        $app->setConfig('app.debug', true);
         $app->router()->get('/boom', function (): void {
             throw new \RuntimeException('secret detail');
         });

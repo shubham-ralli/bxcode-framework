@@ -14,6 +14,35 @@ Upload the app and open `https://your-site/check.php` (or run
 `php public/check.php`) to verify all of these before going further. Delete
 `check.php` once setup is complete.
 
+## No Composer, no .env (CodeIgniter-3 style)
+
+BXCode runs with **no Composer and no `.env`** — upload the files and go.
+
+- **No Composer / no `vendor/`.** `public/index.php`, `bxcode`, and
+  `public/check.php` use Composer's autoloader when `vendor/` exists, and
+  otherwise fall back to the built-in autoloader at `bootstrap/autoload.php`.
+  The framework has no production package dependencies, so nothing else is
+  needed. Just upload the project and point the document root at `public/`.
+
+- **No `.env` file at all.** Every setting lives in `config/*.php` and you edit
+  the values directly. For example, `config/database.php`:
+
+  ```php
+  'mysql' => [
+      'driver'   => 'mysql',
+      'host'     => 'localhost',
+      'database' => 'my_database',
+      'username' => 'my_user',
+      'password' => 'my_password',
+      'charset'  => 'utf8mb4',
+  ],
+  ```
+
+  Set `'debug' => false` for production in `config/app.php` the same way.
+
+This is the simplest path for basic shared hosts. The Composer workflow below is
+optional and only buys you the optimised autoloader.
+
 ## Build the production package
 
 On your development machine (the host needs no Composer):
@@ -45,7 +74,7 @@ LiteSpeed.
 If the host won't let you change the document root (everything is served from
 one `public_html`), put the whole project there. The project-root `.htaccess`
 forwards requests into `public/` and blocks direct access to `config/`, `src/`,
-`storage/`, `vendor/`, and `.env`.
+`storage/`, and `vendor/`.
 
 This is less ideal than Layout A — prefer A whenever the host allows it.
 
@@ -56,12 +85,10 @@ The router reads `REQUEST_URI`, so URLs of the form
 
 ## Configuration
 
-```bash
-cp .env.example .env
-```
-
-Edit `.env`: set `APP_ENV=production`, `APP_DEBUG=false`, and your `DB_*`
-credentials. Keep `.env` out of the web root (Layouts A and B both do this).
+There is no `.env` — edit `config/*.php` directly. Set `'debug' => false` and
+`'env' => 'production'` in `config/app.php`, and your real credentials in
+`config/database.php`. Keep `config/` out of the web root (Layouts A and B both
+do this).
 
 ## Permissions
 

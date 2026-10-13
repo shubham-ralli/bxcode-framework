@@ -31,8 +31,8 @@ if (is_file($root . '/vendor/bin/phpunit')) {
 
 /** Top-level paths included in the package. */
 $include = [
-    'src', 'config', 'routes', 'resources', 'public', 'database', 'vendor',
-    'bxcode', 'composer.json', '.env.example', 'README.md', 'CHANGELOG.md',
+    'src', 'bootstrap', 'config', 'routes', 'resources', 'public', 'database', 'vendor',
+    'bxcode', 'composer.json', 'README.md', 'CHANGELOG.md',
 ];
 
 /** Empty directories to create (so storage exists and stays writable). */

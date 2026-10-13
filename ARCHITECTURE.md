@@ -9,7 +9,7 @@ instance that facades resolve through.
 ```
 public/index.php
    │  require vendor/autoload.php
-   │  $app = Application::boot($root)      // load .env, load config/*.php
+   │  $app = Application::boot($root)      // load config/*.php (no .env)
    │  require routes/web.php               // register routes
    │  $app->run()
    ▼
@@ -37,7 +37,7 @@ production-safe 500 (full detail only when `APP_DEBUG=true`), logged either way.
 
 | Namespace | Responsibility |
 |-----------|----------------|
-| `BXCode` (`Application`) | Boot, config, `.env`, lifecycle, lazy service accessors, central error handling. |
+| `BXCode` (`Application`) | Boot, config (plain-PHP `config/*.php`, no `.env`), lifecycle, lazy service accessors, central error handling. |
 | `Http` | `Request`, `Response`, `Middleware` contract, `HttpException`, `UploadedFile`. |
 | `Routing` | `Router` (verbs, params, groups, named routes, middleware), `Pipeline`. |
 | `Middleware` | CSRF, security headers, CORS, rate limit, request logging. |

@@ -35,9 +35,10 @@ responsibility.
 - **Set a strong rate-limit backend for strict limits.** The file cache limiter
   is not atomic under heavy concurrency (see the note in `RateLimiter`). Use an
   atomic backend (e.g. Redis) where exact limits matter.
-- **Keep `.env` and `storage/` out of the web root.** The recommended layout
-  (document root = `public/`) does this; the fallback `.htaccess` blocks these
-  paths when it cannot.
+- **Keep `config/` and `storage/` out of the web root.** Credentials live in
+  `config/*.php` (there is no `.env`). The recommended layout (document root =
+  `public/`) keeps them private; the fallback `.htaccess` blocks these paths
+  when it cannot.
 - **Deep MIME validation for uploads.** Extension + size checks are provided;
   add content/MIME sniffing for higher-risk upload flows.
 
