@@ -1,0 +1,23 @@
+# BXCode root .htaccess — FALLBACK LAYOUT ONLY.
+#
+# Use this only when your host will not let you point the document root at the
+# public/ directory. It forwards requests into public/ and blocks direct access
+# to private files. The PREFERRED setup is a document root of public/, in which
+# case this file is not used.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Don't rewrite requests that already target public/.
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Deny direct web access to sensitive paths when the docroot is the project root.
+<IfModule mod_rewrite.c>
+    RewriteRule ^(\.env|composer\.(json|lock)|config|src|storage|database|tests|vendor)(/.*)?$ - [F,L]
+</IfModule>
+
+<Files ".env">
+    Require all denied
+</Files>

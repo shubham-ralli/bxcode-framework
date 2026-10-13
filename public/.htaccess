@@ -1,0 +1,20 @@
+# BXCode front-controller rewrite. Works on Apache (mod_rewrite) and LiteSpeed.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve existing files/directories directly.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes to the front controller.
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Fallback when mod_rewrite is unavailable: hosts can call /index.php/<path>.
+# PATH_INFO is read by Request::capture() via REQUEST_URI.
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
